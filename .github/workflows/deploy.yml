@@ -42,7 +42,7 @@ jobs:
       - name: Build website for preview
         if: github.ref_name != 'main' && github.event_name == 'pull_request'
         run: |
-          nix build --impure --expr "(builtins.getFlake \"git+file://$(pwd)?shallow=1\").outputs.packages.x86_64-linux.default.override { baseUrl = \"docusaurus-testing/pr-preview/pr-1\"; }"
+          nix build --impure --expr "(builtins.getFlake \"git+file://$(pwd)?shallow=1\").outputs.packages.x86_64-linux.default.override { baseUrl = \"docusaurus-testing/pr-preview/pr-${{ github.event.number }}\"; }"
       - name: Deploy preview
         if: github.ref_name != 'main' && github.event_name == 'pull_request'
         uses: rossjrw/pr-preview-action@v1
