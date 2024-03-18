@@ -22,6 +22,8 @@ jobs:
   deploy:
     name: Publish docs to GitHub Pages
     runs-on: ubuntu-22.04
+    env:
+      PREVIEW: ${{ github.event_name == 'pull_request' && github.ref_name != 'main' }}
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - uses: cachix/install-nix-action@8887e596b4ee1134dae06b98d573bd674693f47c # v26
@@ -29,11 +31,11 @@ jobs:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build website
-        if: github.ref_name == 'main'
+        if: (!env.PREVIEW)
         run: |
           nix build .#
       - name: Deploy to GitHub Pages
-        if: github.ref_name == 'main'
+        if: (!env.PREVIEW)
         uses: JamesIves/github-pages-deploy-action@65b5dfd4f5bcd3a7403bbc2959c144256167464e # v4.5.0
         with:
           folder: ./result
@@ -42,11 +44,11 @@ jobs:
           force: false
 
       - name: Build website for preview
-        if: github.ref_name != 'main' && github.event_name == 'pull_request'
+        if: env.PREVIEW
         run: |
           nix build --impure --expr "(builtins.getFlake \"git+file://$(pwd)?shallow=1\").outputs.packages.x86_64-linux.default.override { baseUrl = \"docusaurus-testing/pr-preview/pr-${{ github.event.number }}\"; }"
       - name: Deploy preview
-        if: github.ref_name != 'main' && github.event_name == 'pull_request'
+        if: env.PREVIEW
         uses: rossjrw/pr-preview-action@v1
         with:
           source-dir: ./result
