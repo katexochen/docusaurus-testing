@@ -34,10 +34,12 @@ jobs:
           nix build .#
       - name: Deploy to GitHub Pages
         if: github.ref_name == 'main'
-        uses: peaceiris/actions-gh-pages@373f7f263a76c20808c831209c920827a82a2847 # v3.9.3
+        uses: JamesIves/github-pages-deploy-action@65b5dfd4f5bcd3a7403bbc2959c144256167464e # v4.5.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./result
+          folder: ./result
+          branch: gh-pages
+          clean-exclude: pr-preview
+          force: false
 
       - name: Build website for preview
         if: github.ref_name != 'main' && github.event_name == 'pull_request'
