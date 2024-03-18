@@ -12,8 +12,11 @@ on:
       - synchronize
       - closed
 
+concurrency: preview-${{ github.ref }}
+
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   deploy:
@@ -24,7 +27,9 @@ jobs:
       - uses: cachix/install-nix-action@8887e596b4ee1134dae06b98d573bd674693f47c # v26
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build website
+        if: github.ref_name == 'main'
         run: |
           nix build .#
       - name: Deploy to GitHub Pages
@@ -33,6 +38,11 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./result
+
+      - name: Build website for preview
+        if: github.ref_name != 'main' && github.event_name == 'pull_request'
+        run: |
+          nix build --impure --expr "(builtins.getFlake \"git+file://$(pwd)?shallow=1\").outputs.packages.x86_64-linux.default.override { baseUrl = \"docusaurus-testing/pr-preview/pr-1\"; }"
       - name: Deploy preview
         if: github.ref_name != 'main' && github.event_name == 'pull_request'
         uses: rossjrw/pr-preview-action@v1
