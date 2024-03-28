@@ -23,7 +23,7 @@
           packageJSON = "${src}/package.json";
           offlineCache = fetchYarnDeps {
             yarnLock = "${src}/yarn.lock ";
-            hash = "sha256-cdqM2AkGzgiuoHAyWmq/btbubJkYqBCSlPCAOgMSEZ0=";
+            hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
           };
           configurePhase = ''
             cp -r $node_modules node_modules
